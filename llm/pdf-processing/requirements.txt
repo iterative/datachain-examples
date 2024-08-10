@@ -1,0 +1,3 @@
+unstructured[pdf,embed-huggingface]
+datachain
+dvc[azure]
