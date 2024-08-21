@@ -1,14 +1,14 @@
-# Datachain and LLMs - Part I
+# Scalable PDF documents processing with DataChain and Unstructured.io
 
-## Scalable PDF documents processing with DataChain and Unstructured.io
+## Datachain and LLMs - Part I
 
-Most organizations keep a large source of information in the form of various internal documents, call transcripts and other unstructured data. These data contain a lot of useful insights about customers, employees or the inner workings of the company. However, they remain largely untapped by data teams due to the difficulty of dealing with large quantities of data in unstructured formats.
+Most organiations keep a large source of information in the form of various internal documents, call transcripts and other unstructured data. These data contain a lot of useful insights about customers, employees or the inner workings of the company. However, they remain largely untapped by data teams due to the difficulty of dealing with large quantities of data in unstructured formats.
 
 Today, we will see how you can process a collection of documents in less than 60 lines of code and turn them into vector embeddings which are much easier to work with and useful downstream (e.g. as ML features or for RAG applications). This approach is also scalable and you will benefit from easy versioning of the final datasets.
 
 ### Approach and tools
 
-We will work with a publicly available MSFT azure container which contains a collection of Neurips conference papers (representing our internal company documents).
+We will work with a publicly available Google Storage bucket which contains a collection of Neurips conference papers (representing our internal company documents).
 
 For data processing we will use the  [unstructured](https://github.com/Unstructured-IO/unstructured) Python library which contains a lot of useful functionality for unstructured data processing.
 
