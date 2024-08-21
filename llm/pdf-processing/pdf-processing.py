@@ -48,6 +48,7 @@ def process_pdf(file: File) -> Iterator[Chunk]:
 
 dc = (
     DataChain.from_storage("gs://datachain-demo/neurips")
+    .settings(parallel=-1)
     .filter(C.file.path.glob("*.pdf"))
     .gen(document=process_pdf)
 )
