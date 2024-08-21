@@ -3,6 +3,7 @@ name: Daily pdf-processing example test
 on:
   schedule:
     - cron: '0 0 * * *' # Runs every day at midnight UTC
+  workflow_dispatch:
 
 jobs:
   run-python-script:
