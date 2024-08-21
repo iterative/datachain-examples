@@ -1,0 +1,30 @@
+name: Daily pdf-processing example test
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs every day at midnight UTC
+  workflow_dispatch:
+
+jobs:
+  run-python-script:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+
+    # Install dependencies
+    - name: Install dependencies
+      run: |
+        pip install -r llm/pdf-processing/requirements.txt
+
+    # Run the Python script with a timeout
+    - name: Run Python script with timeout
+      run: |
+        timeout 15m python llm/pdf-processing/pdf-processing.py
+
