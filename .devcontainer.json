@@ -1,5 +1,5 @@
 {
-  "name": "hackathon",
+  "name": "datachain-examples",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "features": {
       "ghcr.io/iterative/features/dvc:1": {},
@@ -14,7 +14,7 @@
   },
   "customizations": {
     "vscode": {
-      "extensions": ["Iterative.dvc", "ms-python.python", "redhat.vscode-yaml"]
+      "extensions": ["Iterative.dvc", "ms-python.python", "redhat.vscode-yaml", "ms-toolsai.jupyter"]
     }
   }
 }
