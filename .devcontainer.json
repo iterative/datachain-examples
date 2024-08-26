@@ -1,6 +1,6 @@
 {
   "name": "hackathon",
-  "image": "mcr.microsoft.com/devcontainers/python:3.10",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "features": {
       "ghcr.io/iterative/features/dvc:1": {},
       "ghcr.io/iterative/features/nvtop:1": {},
