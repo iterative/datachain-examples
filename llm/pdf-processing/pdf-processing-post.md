@@ -4,7 +4,7 @@
 
 Most organiations keep a large source of information in the form of various internal documents, call transcripts and other unstructured data. These data contain a lot of useful insights about customers, employees or the inner workings of the company. However, they remain largely untapped by data teams due to the difficulty of dealing with large quantities of data in unstructured formats.
 
-Today, we will see how you can process a collection of documents in less than 60 lines of code and turn them into vector embeddings which are much easier to work with and useful downstream (e.g. as ML features or for RAG applications). This approach is also scalable and you will benefit from easy versioning of the final datasets.
+Today, we will see how you can process a collection of documents in less than 60 lines of code, extract and parse text from them and create vector embeddings useful for downstream tasks (e.g. for RAG or as ML features). This approach is also scalable and you will benefit from easy versioning of the final datasets.
 
 ### Approach and tools
 
@@ -17,7 +17,7 @@ With unstructured we will:
 * Partition and clean it
 * Create vector embeddings from the partitions
 
-We will also use [DataChain](https://github.com/iterative/datachain), which is an open-source Python data-frame library which helps ML and AI engineers to build a metadata layer on top of unstructured files. That way, we do not have to copy the original files anywhere or load them all to memory, significantly scaling up the volume of data we can process.
+We will also use [DataChain](https://github.com/iterative/datachain), which is an open-source Python data-frame library which helps ML and AI engineers to build a metadata layer on top of unstructured files. DataChain enables out-of-memory storage and processing with a Pythonic dataframe-like API that combines SQL-type operations with GPU/CPU acceleration and seamless scalability, while also versioning and persisting datasets for reproducibility.
 
 With [DataChain](https://github.com/iterative/datachain), we will:
 * Easily search and filter our data container to only load the documents we need
