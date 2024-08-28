@@ -1,6 +1,9 @@
 datachain
-numpy
+matplotlib 
+numpy=2.0.0
 pandas
+seaborn
 torch
 torchvision
 tqdm
+umap-learn
