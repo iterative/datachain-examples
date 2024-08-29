@@ -1,5 +1,4 @@
-datachain[remote]
+datachain
 unstructured[pdf,embed-huggingface]==0.15.7
-pdfplumber==0.11.3
 jupyter
 python-dotenv

@@ -1,4 +1,3 @@
-# from typing import List
 from collections.abc import Iterator
 
 from datachain import DataChain, C, File, DataModel
