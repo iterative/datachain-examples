@@ -1,4 +1,4 @@
-from typing import List
+# from typing import List
 from collections.abc import Iterator
 
 from datachain import DataChain, C, File, DataModel
@@ -9,19 +9,22 @@ from unstructured.cleaners.core import clean
 from unstructured.cleaners.core import replace_unicode_quotes
 from unstructured.cleaners.core import group_broken_paragraphs
 
-from unstructured.embed.huggingface import HuggingFaceEmbeddingConfig, HuggingFaceEmbeddingEncoder
+from unstructured.embed.huggingface import (
+    HuggingFaceEmbeddingConfig,
+    HuggingFaceEmbeddingEncoder,
+)
+
+source = "gs://datachain-demo/neurips"
 
 # Define the output as a DataModel class
 class Chunk(DataModel):
     key: str
     text: str
-    embeddings: List[float]
+    embeddings: list[float]
 
 # Define embedding encoder
 
-embedding_encoder = HuggingFaceEmbeddingEncoder(
-     config=HuggingFaceEmbeddingConfig()
-)
+embedding_encoder = HuggingFaceEmbeddingEncoder(config=HuggingFaceEmbeddingConfig())
 
 # Use signatures to define UDF input/output (these can be pydantic model or regular Python types)
 def process_pdf(file: File) -> Iterator[Chunk]:
@@ -31,7 +34,11 @@ def process_pdf(file: File) -> Iterator[Chunk]:
 
     # Clean the chunks and add new columns
     for chunk in chunks:
-        chunk.apply(lambda text: clean(text, bullets=True, extra_whitespace=True, trailing_punctuation=True))
+        chunk.apply(
+            lambda text: clean(
+                text, bullets=True, extra_whitespace=True, trailing_punctuation=True
+            )
+        )
         chunk.apply(replace_unicode_quotes)
         chunk.apply(group_broken_paragraphs)
 
@@ -47,7 +54,7 @@ def process_pdf(file: File) -> Iterator[Chunk]:
         )
 
 dc = (
-    DataChain.from_storage("gs://datachain-demo/neurips")
+    DataChain.from_storage(source)
     .settings(parallel=-1)
     .filter(C.file.path.glob("*.pdf"))
     .gen(document=process_pdf)
