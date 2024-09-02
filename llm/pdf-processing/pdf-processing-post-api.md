@@ -8,7 +8,7 @@ Today, we will see how you can process a collection of documents in less than 70
 
 We will work with a publicly available Google Storage bucket which contains a collection of Neurips conference papers (representing our internal company documents).
 
-For data processing we will use the  [unstructured](https://github.com/Unstructured-IO/unstructured) Python library which contains a lot of useful functionality for unstructured data processing. They also offer an API to handle processing on their compute and offer some extra options and features on top of their FOSS offering. We will be using the API for partitioning.
+For data processing we will use the  [unstructured](https://github.com/Unstructured-IO/unstructured) Python library which contains a lot of useful functionality for unstructured data processing. They also offer an API to handle processing on their compute and offer some extra options and features on top of their FOSS offering. We will be using the API for partitioning and not how you can use the FOSS partitioning instead (and its limitations).
 
 With unstructured we will:
 * Easily ingest and partition each document using the [Unstructured API](https://docs.unstructured.io/api-reference/api-services/overview)
@@ -132,7 +132,7 @@ dc = (
 
 Let's unpack:
 
-The `from_sto60eding things up once again.
+The `from_storage` and `filter` methods allow us to ingest the data from a bucket/storage container. Since DataChain uses lazy evaluation, no other files than those specified by the `filter` will be loaded, speeding up the process considerably. Setting `parallel` to `-1` tells DataChain to make use of all CPUs/cores on the current machine, speeding things up once again.
 
 This will create a DataChain metadata table containing all the information needed to process our PDF files without actually having to copy the files themselves or load them all to memory. Since DataChain operates on a metadata level, it can scale up billions of files without us having to worry about memory overflows.
 
@@ -149,6 +149,16 @@ This will persist the table and version it (each time we call this command a new
 ```python
 DataChain.from_dataset("embeddings", version=1).show()
 ```
+If you want to use the FOSS version of Unstructured for partitioning, you can do it by replacing `partition_via_api` in the script above as follows:
+
+```python
+from unstructured.partition.pdf import partition_pdf
+
+...
+
+chunks = partition_pdf(file=f, chunking_strategy="by_title", strategy="fast")
+```
+In this case, you will not need the API keys but you also cannot use the more advanced `"by_similarity"` chunking strategy. 
 
 All that's missing is the DataChain UDF definition, so let's see how we do that.
 
@@ -197,7 +207,7 @@ DataChain.from_dataset("embedded-documents", version=<version number>).show()
 
 In the SaaS version of DataChain we also provide lineage tracking for datasets, more robust dataset versioning and auditability, a managed on-demand compute including with GPU clusters to really scale up your workloads and a graphical user interface among other features.
 
-DataChain SaaS is currently available as a private preview in our [DVC Studio](https://studio.dvc.ai/) platform right now, feel free to ask us about that at `support@iterative.ai`!
+DataChain SaaS is currently available as a private preview in our [DVC Studio](https://studio.dvc.ai/auth/sign-up) platform right now, feel free to ask us about that at `support@iterative.ai`!
 
 ## Summary
 
