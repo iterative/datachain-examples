@@ -8,7 +8,7 @@ Today, we will see how you can process a collection of documents in less than 70
 
 We will work with a publicly available Google Storage bucket which contains a collection of Neurips conference papers (representing our internal company documents).
 
-For data processing we will use the  [unstructured](https://github.com/Unstructured-IO/unstructured) Python library which contains a lot of useful functionality for unstructured data processing. They also offer an API to handle processing on their compute and offer some extra options and features on top of their FOSS offering. We will be using the API for partitioning and not how you can use the FOSS partitioning instead (and its limitations).
+For data processing we will use the  [unstructured](https://github.com/Unstructured-IO/unstructured) Python library which contains a lot of useful functionality for unstructured data processing. They also offer an API to handle processing on their compute and offer some extra options and features on top of their FOSS offering. We will be using the API for partitioning to take advantage of advanced partitioning features.
 
 With unstructured we will:
 * Easily ingest and partition each document using the [Unstructured API](https://docs.unstructured.io/api-reference/api-services/overview)
