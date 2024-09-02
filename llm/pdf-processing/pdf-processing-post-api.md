@@ -149,16 +149,6 @@ This will persist the table and version it (each time we call this command a new
 ```python
 DataChain.from_dataset("embeddings", version=1).show()
 ```
-If you want to use the FOSS version of Unstructured for partitioning, you can do it by replacing `partition_via_api` in the script above as follows:
-
-```python
-from unstructured.partition.pdf import partition_pdf
-
-...
-
-chunks = partition_pdf(file=f, chunking_strategy="by_title", strategy="fast")
-```
-In this case, you will not need the API keys but you also cannot use the more advanced `"by_similarity"` chunking strategy. 
 
 All that's missing is the DataChain UDF definition, so let's see how we do that.
 
@@ -182,7 +172,17 @@ Now we are ready to define the `process_pdf` function itself. We use Python sign
 def process_pdf(file: File) -> Iterator[Chunk]:
 ```
 
-The rest of the function definition as well as the definition of `embedding_encoder` specifies how `unstructured` is used to process each individual PDF file. We are using [`partition_via_api`](https://docs.unstructured.io/api-reference/api-services/partition-via-api) to take advantage of the more advanced `"by_similarity"` chunking strategy only offered in the API. If we are not interested in that, it is also possible to do the same using only the free open source unstructured library. For more detail on how this is done and what other PDF processing options there are you can check out the tutorial in the [unstructured documentation](https://docs.unstructured.io/open-source/core-functionality/overview).
+The rest of the function definition as well as the definition of `embedding_encoder` specifies how `unstructured` is used to process each individual PDF file. We are using [`partition_via_api`](https://docs.unstructured.io/api-reference/api-services/partition-via-api) to take advantage of the more advanced `"by_similarity"` chunking strategy only offered in the API. If we are not interested in that, it is also possible to do the same using only the free open source unstructured library by replacing `partition_via_api` in the script above as follows:
+
+```python
+from unstructured.partition.pdf import partition_pdf
+
+...
+
+chunks = partition_pdf(file=f, chunking_strategy="by_title", strategy="fast")
+```
+
+For more detail on data processing with `unstructured` you can check out the tutorial in the [unstructured documentation](https://docs.unstructured.io/open-source/core-functionality/overview).
 
 Finally, we want the UDF to produce new rows in our DataChain table and so we have it return the Chunk objects we specified above. Here, we use `yield` instead of `return` as each PDF file produces several Chunk objects.
 
