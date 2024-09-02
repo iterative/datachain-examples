@@ -1,12 +1,10 @@
 # Scalable PDF documents processing with DataChain and Unstructured.io
 
-## Datachain and LLMs - Part I
+Most organisations keep a large source of information in the form of various internal documents, call transcripts and other unstructured data. These data contain a lot of useful insights about customers, employees or the inner workings of the company. However, they remain largely untapped by data teams due to the difficulty of dealing with large quantities of data in unstructured formats.
 
-Most organiations keep a large source of information in the form of various internal documents, call transcripts and other unstructured data. These data contain a lot of useful insights about customers, employees or the inner workings of the company. However, they remain largely untapped by data teams due to the difficulty of dealing with large quantities of data in unstructured formats.
+Today, we will see how you can process a collection of documents in less than 60 lines of code, extract and parse text from them and create vector embeddings useful for downstream tasks (e.g. for RAG or as ML features). This approach is also scalable and you will benefit from easy versioning of the final datasets.
 
-Today, we will see how you can process a collection of documents in less than 60 lines of code and turn them into vector embeddings which are much easier to work with and useful downstream (e.g. as ML features or for RAG applications). This approach is also scalable and you will benefit from easy versioning of the final datasets.
-
-### Approach and tools
+## Approach and tools
 
 We will work with a publicly available Google Storage bucket which contains a collection of Neurips conference papers (representing our internal company documents).
 
@@ -17,7 +15,7 @@ With unstructured we will:
 * Partition and clean it
 * Create vector embeddings from the partitions
 
-We will also use [DataChain](https://github.com/iterative/datachain), which is an open-source Python data-frame library which helps ML and AI engineers to build a metadata layer on top of unstructured files. That way, we do not have to copy the original files anywhere or load them all to memory, significantly scaling up the volume of data we can process.
+We will also use [DataChain](https://github.com/iterative/datachain), which is an open-source Python data-frame library which helps ML and AI engineers to build a metadata layer on top of unstructured files. DataChain enables out-of-memory storage and processing with a Pythonic dataframe-like API that combines SQL-type operations with GPU/CPU acceleration and seamless scalability, while also versioning and persisting datasets for reproducibility.
 
 With [DataChain](https://github.com/iterative/datachain), we will:
 * Easily search and filter our data container to only load the documents we need
@@ -27,16 +25,15 @@ With [DataChain](https://github.com/iterative/datachain), we will:
 Both libraries can be easily installed with pip.
 
 ```
-pip install unstructured datachain
+pip install "unstructured[pdf,embed-huggingface]" datachain
 ```
 (In this example we are using `unstructured` version `0.15.7`)
 
-### Full working code
+## Full working code
 
-Here you can have a look at the full code used in our example which you can run (and we will upack in a second) This code will load our document collection with DataChain and create a DataChain UDF (user-defined function) `process_pdf` which will load, partition and clean the text and create vector embeddings using `unstructured`. It then saves (and automatically versions) the resulting dataset containing the embeddings, cleaned human-readable text and a reference key for all of the original documents.
+Here you can have a look at the full code used in our example which you can run (and we will unpack in a second) This code will load our document collection with DataChain and create a DataChain UDF (user-defined function) `process_pdf` which will load, partition and clean the text and create vector embeddings using `unstructured`. It then saves (and automatically versions) the resulting dataset containing the embeddings, cleaned human-readable text and a reference key for all of the original documents.
 
 ```python
-from typing import List
 from collections.abc import Iterator
 
 from datachain import DataChain, C, File, DataModel
@@ -53,7 +50,7 @@ from unstructured.embed.huggingface import HuggingFaceEmbeddingConfig, HuggingFa
 class Chunk(DataModel):
     key: str
     text: str
-    embeddings: List[float]
+    embeddings: list[float]
 
 # Define embedding encoder
 
@@ -99,9 +96,9 @@ The resulting dataset will look like this:
 
 ![DataChain output image](output.png "DataChain output")
 
-### How it works
+## How it works
 
-#### Creating and saving the DataChain
+### Creating and saving the DataChain
 
 The following few lines of code are all that we need to load and select the right data in from our storage and to process them with `unstructured`.
 
@@ -120,7 +117,7 @@ The `from_storage` and `filter` methods allow us to ingest the data from a bucke
 
 This will create a DataChain metadata table containing all the information needed to process our PDF files without actually having to copy the files themselves or load them all to memory. Since DataChain operates on a metadata level, it can scale up billions of files without us having to worry about memory overflows.
 
-The `gen` method allows us to modify the datachain table and create new rows (potentially more than one per original table row) using datachain UDF functions. Here, the UDF `process_pdf` does all the individual PDF processing with `unstructured`.
+The `gen` method allows us to modify the DataChain table and create new rows (potentially more than one per original table row) using DataChain UDF functions. Here, the UDF `process_pdf` does all the individual PDF processing with `unstructured`.
 
 Finally, we save the table as a dataset by calling 
 
@@ -136,9 +133,9 @@ DataChain.from_dataset("embeddings", version=1).show()
 
 All that's missing is the DataChain UDF definition, so let's see how we do that.
 
-#### Defining the UDF
+### Defining the UDF
 
-The `process_pdf` UDF will take the original datachain table and produce an output with `embeddings` of processed document chunks. We also want to keep the original `text` of each processed document chunk and a `key` by which we can link each chunk back to the original full document.
+The `process_pdf` UDF will take the original DataChain table and produce an output with `embeddings` of processed document chunks. We also want to keep the original `text` of each processed document chunk and a `key` by which we can link each chunk back to the original full document.
 
 We first specify what we actually want to receive on the output of our UDF by defining the `DataModel`-based `Chunk` class and defining the output column types:
 
@@ -147,10 +144,10 @@ We first specify what we actually want to receive on the output of our UDF by de
 class Chunk(DataModel):
     key: str
     text: str
-    embeddings: List[float]
+    embeddings: list[float]
 ```
 
-Now we are ready to define the `process_pdf` function itself. We use Python signatures to specify the input and output. Here, `File` is a class used by Datachain to refer to the original file - a PDF document in our case. On the output we use `Iterator` since our function will produce multiple chunks (and so multiple rows in our DataChain table) per original file.
+Now we are ready to define the `process_pdf` function itself. We use Python signatures to specify the input and output. Here, `File` is a class used by DataChain to refer to the original file - a PDF document in our case. On the output we use `Iterator` since our function will produce multiple chunks (and so multiple rows in our DataChain table) per original file.
 
 ```python
 def process_pdf(file: File) -> Iterator[Chunk]:
@@ -170,8 +167,21 @@ Finally, we want the UDF to produce new rows in our DataChain table and so we ha
         )
 ```
 
-### Summary
+## DataChain versioning and additional SaaS features
 
-We have processed our collection of documents to create a dataset of embeddings in a scalable fashion. We could now proceed with optimizing the workflow, choosing the best way way to preprocess our data by trying different parsing and data cleaning strategies, different embedding etc. (and if we have a GPU, we can speed up data processing even further by configuring the embedding config to use it). Unstructured provides many tools for such fine-tuning and daset versioning with Datachain is a useful tool to compare the different iterations.
+Now, we have a versioned dataset with a new version automatically created by DataChain whenever we run the script above. By default, versions are numbered and we can always recall a particular version by specifying it as in this call:
 
-Stay tuned for Part II, where we will explore a use-case where we will use a similar approach to process call centre recordings to create and process transcripts.
+```python
+DataChain.from_dataset("embedded-documents", version=<version number>).show()
+
+```
+
+In the SaaS version of DataChain we also provide lineage tracking for datasets, more robust dataset versioning and auditability, a managed on-demand compute including with GPU clusters to really scale up your workloads and a graphical user interface among other features.
+
+DataChain SaaS is currently available as a private preview in our [DVC Studio](https://studio.dvc.ai/auth/sign-up) platform right now, feel free to ask us about that at `support@iterative.ai`!
+
+## Summary
+
+We have processed our collection of documents to create a dataset of embeddings in a scalable fashion. We could now proceed with optimizing the workflow, choosing the best way to preprocess our data by trying different parsing and data cleaning strategies, different embedding etc.
+
+Unstructured provides many tools for such fine-tuning and dataset versioning with DataChain is a useful tool to compare the different iterations. With the DataChain SaaS it is also very easy to scale this up further with managed cluster compute and robust lineage and versioning capabilities.

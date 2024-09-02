@@ -1,19 +1,20 @@
+import os
 from collections.abc import Iterator
+from dotenv import load_dotenv
 
 from datachain import DataChain, C, File, DataModel
 
-from unstructured.partition.pdf import partition_pdf
-
+from unstructured.partition.api import partition_via_api
 from unstructured.cleaners.core import clean
 from unstructured.cleaners.core import replace_unicode_quotes
 from unstructured.cleaners.core import group_broken_paragraphs
-
 from unstructured.embed.huggingface import (
     HuggingFaceEmbeddingConfig,
     HuggingFaceEmbeddingEncoder,
 )
 
-source = "gs://datachain-demo/neurips"
+load_dotenv()
+
 
 # Define the output as a DataModel class
 class Chunk(DataModel):
@@ -21,15 +22,26 @@ class Chunk(DataModel):
     text: str
     embeddings: list[float]
 
+
 # Define embedding encoder
 
 embedding_encoder = HuggingFaceEmbeddingEncoder(config=HuggingFaceEmbeddingConfig())
+
 
 # Use signatures to define UDF input/output (these can be pydantic model or regular Python types)
 def process_pdf(file: File) -> Iterator[Chunk]:
     # Ingest the file
     with file.open() as f:
-        chunks = partition_pdf(file=f, chunking_strategy="by_title", strategy="fast")
+
+        chunks = partition_via_api(
+            file=f,
+            metadata_filename=file.path,
+            api_key=os.getenv("UNSTRUCTURED_API_KEY"),
+            api_url=os.getenv("UNSTRUCTURED_API_URL"),
+            content_type="pdf",
+            strategy="fast",
+            chunking_strategy="by_title",
+        )
 
     # Clean the chunks and add new columns
     for chunk in chunks:
@@ -52,10 +64,11 @@ def process_pdf(file: File) -> Iterator[Chunk]:
             embeddings=chunk.embeddings,
         )
 
+
 dc = (
-    DataChain.from_storage(source)
+    DataChain.from_storage("gs://datachain-demo/neurips")
     .settings(parallel=-1)
-    .filter(C.file.path.glob("*.pdf"))
+    .filter(C.file.path.glob("*/1987/*.pdf"))
     .gen(document=process_pdf)
 )
 
