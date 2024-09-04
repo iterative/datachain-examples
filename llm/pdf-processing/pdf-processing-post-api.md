@@ -1,5 +1,9 @@
 # Scalable PDF documents processing with DataChain and Unstructured.io
 
+***Extract and parse text from documents and create vector embeddings in a scalable and distributed way (and less than 70 lines of code)***
+
+![Datachain and unstructured for pdfs](datachain-unstructured-pdf-heart.png "Datachain and unstructured for pdfs")
+
 Most organisations keep a large source of information in the form of various internal documents, call transcripts and other unstructured data. These data contain a lot of useful insights about customers, employees or the inner workings of the company. However, they remain largely untapped by data teams due to the difficulty of dealing with large quantities of data in unstructured formats.
 
 Today, we will see how you can process a collection of documents in less than 70 lines of code, extract and parse text from them and create vector embeddings useful for downstream tasks (e.g. for RAG or as ML features). This approach is also scalable and you will benefit from easy versioning of the final datasets.
@@ -8,14 +12,14 @@ Today, we will see how you can process a collection of documents in less than 70
 
 We will work with a publicly available Google Storage bucket which contains a collection of Neurips conference papers (representing our internal company documents).
 
-For data processing we will use the  [unstructured](https://github.com/Unstructured-IO/unstructured) Python library which contains a lot of useful functionality for unstructured data processing. They also offer an API to handle processing on their compute and offer some extra options and features on top of their FOSS offering. We will be using the API for partitioning to take advantage of advanced partitioning features.
+***For data processing we will use the  [unstructured](https://github.com/Unstructured-IO/unstructured) Python library which contains a lot of useful functionality for unstructured data processing. They also offer an API to handle processing on their compute and offer some extra options and features on top of their FOSS offering. We will be using the API for partitioning to take advantage of advanced partitioning features.***
 
 With unstructured we will:
 * Easily ingest and partition each document using the [Unstructured API](https://docs.unstructured.io/api-reference/api-services/overview)
 * Clean the partitions
 * Create vector embeddings from the partitions
 
-We will also use [DataChain](https://github.com/iterative/datachain), which is an open-source Python data-frame library which helps ML and AI engineers to build a metadata layer on top of unstructured files. DataChain enables out-of-memory storage and processing with a Pythonic dataframe-like API that combines SQL-type operations with GPU/CPU acceleration and seamless scalability, while also versioning and persisting datasets for reproducibility.
+***We will also use [DataChain](https://github.com/iterative/datachain), which is an open-source Python data-frame library which helps ML and AI engineers to build a metadata layer on top of unstructured files. DataChain enables out-of-memory storage and processing with a Pythonic dataframe-like API that combines SQL-type operations with GPU/CPU acceleration and seamless scalability, while also versioning and persisting datasets for reproducibility.***
 
 With [DataChain](https://github.com/iterative/datachain), we will:
 * Easily search and filter our data container to only load the documents we need
@@ -29,7 +33,7 @@ pip install "unstructured[pdf,embed-huggingface]" datachain
 ```
 (In this example we are using `unstructured` version `0.15.7`)
 
-For the Unstructured API, we will also need to install the `python-dotenv` library to load the API key and URL. To get the API key, you can follow this [guide](https://docs.unstructured.io/api-reference/api-services/free-api) and get a free API key for up to 1000 document pages per month.
+For the Unstructured API, we will also install the `python-dotenv` library to load the API key and URL. To get the API key, you can follow this [guide](https://docs.unstructured.io/api-reference/api-services/free-api) and get a free API key for up to 1000 document pages per month.
 
 We then need to save a `.env` file with the following content in the location we will be running our code from:
 
@@ -111,7 +115,7 @@ dc.save("embedded-documents")
 
 DataChain.from_dataset("embedded-documents").show()
 ```
-The resulting dataset will look like this:
+The resulting dataset will look like in the image below:
 
 ![DataChain output image](output.png "DataChain output")
 
@@ -144,10 +148,10 @@ Finally, we save the table as a dataset by calling
 dc.save("embedded-documents")
 ```
 
-This will persist the table and version it (each time we call this command a new version is created automatically). We can then load and display it by the following command, optionally specifying the dataset version
+This will persist the table and version it (each time we call this command a new version is created automatically). We can then load and display it by the following command, optionally specifying the dataset version (more on that later).
 
 ```python
-DataChain.from_dataset("embeddings", version=1).show()
+DataChain.from_dataset("embeddings").show()
 ```
 
 All that's missing is the DataChain UDF definition, so let's see how we do that.
@@ -182,9 +186,9 @@ from unstructured.partition.pdf import partition_pdf
 chunks = partition_pdf(file=f, chunking_strategy="by_title", strategy="fast")
 ```
 
-For more detail on data processing with `unstructured` you can check out the tutorial in the [unstructured documentation](https://docs.unstructured.io/open-source/core-functionality/overview).
+For more detail on data processing with `unstructured` you can check out the tutorial in the [unstructured documentation](https://docs.unstructured.io/open-source/core-functionality/overview). Here, we will just note that if some of our documents were scanned images or contained tables or other more complicated elements we would replace `"fast"` in the `strategy` parameter of `partition_pdf` or `partition_via_api` with `"hi-res"`. Then `unstructured` will be able to process that kind of data.
 
-Finally, we want the UDF to produce new rows in our DataChain table and so we have it return the Chunk objects we specified above. Here, we use `yield` instead of `return` as each PDF file produces several Chunk objects.
+Finally, we want the UDF to produce new rows in our DataChain table and so we have it return the `Chunk` objects we specified above. Here, we use `yield` instead of `return` as each PDF file produces several `Chunk` objects.
 
 ```python
     # Add new rows to DataChain
@@ -202,8 +206,12 @@ Now, we have a versioned dataset with a new version automatically created by Dat
 
 ```python
 DataChain.from_dataset("embedded-documents", version=<version number>).show()
-
 ```
+In the image below we can see an example comparison of two different versions of our dataset. We used slightly different data processing methods each time, resulting in different chunks as seen in the `text` column:
+
+
+![Comparison of different datachain versions](comparison.png "Comparison of different datachain versions")
+
 
 In the SaaS version of DataChain we also provide lineage tracking for datasets, more robust dataset versioning and auditability, a managed on-demand compute including with GPU clusters to really scale up your workloads and a graphical user interface among other features.
 
@@ -213,4 +221,5 @@ DataChain SaaS is currently available as a private preview in our [DVC Studio](h
 
 We have processed our collection of documents to create a dataset of embeddings in a scalable fashion. We could now proceed with optimizing the workflow, choosing the best way to preprocess our data by trying different parsing and data cleaning strategies, different embedding etc.
 
-Unstructured provides many tools for such fine-tuning and dataset versioning with DataChain is a useful tool to compare the different iterations. With the DataChain SaaS it is also very easy to scale this up further with managed cluster compute and robust lineage and versioning capabilities.
+Unstructured provides many tools for such fine-tuning and dataset versioning with DataChain is a useful tool to compare the different iterations. With the DataChain SaaS it is also very easy to scale this up further with managed cluster compute and robust lineage and versioning capabilities. We will look at this in more detail next time!
+
