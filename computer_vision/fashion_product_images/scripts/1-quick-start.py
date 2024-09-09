@@ -27,9 +27,7 @@ dc_meta = DataChain.from_csv(ANNOTATIONS_PATH).select_except("source").save()
 dc_meta.show(3)
 
 print("\n# Merge the original image and metadata datachains")
-dc_annotated = dc.mutate(filename=path.name(C("file.path"))).merge(
-    dc_meta, on="filename"
-)
+dc_annotated = dc.merge(dc_meta, on=path.name(dc.c("file.path")), right_on="filename")
 
 print("\n# Save dataset")
 dc_annotated.save("fashion-product-images")
