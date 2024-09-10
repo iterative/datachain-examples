@@ -5,7 +5,7 @@
 This tutorial dives into techniques to manage video and image datasets for Video Analytics and Vision AI projects. 
 
 📋 Topics covered:
-1. Building a Video DataChain for kinetics-700-2020 video dataset
+1. Building a Video DataChain for `kinetics-700-2020` video dataset
 2. Creating a Data Model for YOLOv8 Pose Detection projects
 3. Integrating Video-Level Annotations from CSV
 4. Extract and Manage Video Frames
