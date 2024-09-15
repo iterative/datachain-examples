@@ -1,7 +1,2 @@
 datachain
-numpy
-pandas
-torch
-torchvision
-tqdm
 ultralytics

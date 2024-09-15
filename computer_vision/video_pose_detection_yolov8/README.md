@@ -21,6 +21,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
+You might also need to run:
+
+```
+apt-get update
+apt-get install -y --no-install-recommends libgl1 libglib2.0-0
+```
+
 ## 🚀 Run Jupyter Notebooks
 
 The tutorial is available in Jupyter Notebooks. Start Jupyter Notebook server and follow the instructions.
